@@ -15,18 +15,18 @@ export default function Alarm() {
     const [deleteId, setDeleteId] = useState<number | null>(null);
     const [meridianState, setMeridianState] = useState(false);
 
-    const meridian = async (id: number, meridian: string) => {
+    // const meridian = async (id: number, meridian: string) => {
 
-        await fetch("/api/savealarms", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                id,
-                meridian,
-            })
-        });
+    //     await fetch("/api/savealarms", {
+    //         method: "PUT",
+    //         headers: { "Content-Type": "application/json" },
+    //         body: JSON.stringify({
+    //             id,
+    //             meridian,
+    //         })
+    //     });
 
-    };
+    // };
 
     const update = async (id: number) => {
 
@@ -37,6 +37,7 @@ export default function Alarm() {
                 id,
                 hours: hours,
                 minutes: minutes,
+                meridian: meridianState ? "AM" : "PM",
             }),
         })
         setEditModal(false);
@@ -183,14 +184,16 @@ export default function Alarm() {
                 minutes,
                 selected: true,
                 days: [1, 2, 3, 4, 5, 6],
-                meridian,
+                meridian: meridianState?"AM":"PM",
             }),
         });
 
-        const newAlarm = await response.json();
-        setSelectedAlarms(prev => [...prev, newAlarm.id]);
-        setAlarmsaved(prev => [...prev, newAlarm]);
+        // const newAlarm = await response.json();
+        // setSelectedAlarms(prev => [...prev, newAlarm.id]);
+        // setAlarmsaved(prev => [...prev, newAlarm]);
         setAdd(false);
+
+        receive();
     };
     useEffect(() => {
         alarmRef.current = new Audio("/timer.mp3");
@@ -227,9 +230,10 @@ export default function Alarm() {
     }, [alarmsaved, selectedAlarms]);
 
 
-
+const currentmeridian=alarmsaved.find(item => item.id===editId);
 
     return (
+        
 
         <div className="bg-gradient-to-bl from-lime-500 via-emerald-400 via-amber-400 via-teal-400 via-cyan-400 via-neutral-400 via-indigo-400 via-zinc-400 via-slate-400 to-fuchsia-400 text-white h-screen">
             <h1 className="text-7xl font-bold flex justify-center mb-4">Alarm</h1>
@@ -278,7 +282,7 @@ export default function Alarm() {
 
                         {/* Database alarms */}
 
-                        <div key={item.id} className={` mt-2 border-white ${item.selected ? "text-white bg-black" : "text-gray-400 bg-white"} border mx-2 rounded-lg `}>
+                        <div  className={` mt-2 border-white ${item.selected ? "text-white bg-black" : "text-gray-400 bg-white"} border mx-2 rounded-lg `}>
 
                             <p className="text-2xl flex justify-center">
                                 {String(item.hours).padStart(2, "0")}:{String(item.minutes).padStart(2, "0")} {item.meridian}
@@ -294,6 +298,7 @@ export default function Alarm() {
                                             setEditId(item.id);
                                             setEditModal(true);
                                             setTotalSeconds((item.hours * 60 + item.minutes) * 60);
+                                            setMeridianState(item.meridian==="AM"?true:false)
                                         }}
                                     >
 
@@ -444,16 +449,35 @@ export default function Alarm() {
                                         </button>
 
                                     </div>
-                                </div>
 
+                                    
+
+                                </div>
+<div className="flex flex-col justify-center">
+                                    <button onClick={() => { setMeridianState(true); }}
+                                        className={`p-2 w-25 
+                                            ${meridianState ? "bg-black border-2 border-white" 
+                                                : "bg-white text-black border-2 border-black"} rounded text-xl `}
+                                    >AM</button>
+                                    <button onClick={() => { setMeridianState(false); }}
+                                        className={`p-2 w-25 
+                                            ${meridianState ? "bg-white text-black  border-2 border-black" 
+                                                : "bg-black border-2 shadow-xl shadow-black border-white"} rounded text-xl `}
+                                    >PM</button>
+                                </div>
                             </div>
-                            <div className="flex justify-center mt-2">
+                            <div className="flex justify-center mt-4">
                                 <button onClick={addalarm}
                                     className="w-50 py-3 rounded-lg text-xl 
                                                 bg-gradient-to-r from-blue-500 via-pink-600 to-purple-600
                 hover:bg-red-800 hover:shadow-xl shadow-pink-700 hover:border hover:border-white">
                                     Add Alarm
                                 </button>
+                                <button onClick={() => setAdd(false)}
+                                            className="w-50 ml-2 px-2 py-3 bg-red-700 rounded-lg text-xl 
+                hover:bg-red-800 hover:shadow-xl shadow-red-700 hover:border hover:border-white">
+                                            Close
+                                        </button>
                             </div>
                         </div>
                     </div>
@@ -463,6 +487,7 @@ export default function Alarm() {
 
             {
                 editModal && (
+                    
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center ">
 
                         <div className="mt-4 bg-gray-900 rounded-lg p-4">
@@ -503,7 +528,7 @@ export default function Alarm() {
                                         </button>
                                     </div>
                                 </div>
-                                <div className="">
+                                <div>
                                     <h1 className="text-6xl font-bold ">Minutes:</h1>
                                     <p className="border-2 rounded-lg  border-white font-bold text-7xl flex justify-center p-15">
                                         {String(minutes).padStart(2, "0")}
@@ -538,12 +563,12 @@ export default function Alarm() {
                                 </div>
 
                                 <div className="flex flex-col justify-center">
-                                    <button onClick={() => { meridian(editId!, "AM"); setMeridianState(true); }}
+                                    <button onClick={() => { setMeridianState(true); }}
                                         className={`p-2 w-25 
                                             ${meridianState ? "bg-black border-2 border-white" 
                                                 : "bg-white text-black border-2 border-black"} rounded text-xl `}
                                     >AM</button>
-                                    <button onClick={() => { meridian(editId!, "PM"); setMeridianState(false); }}
+                                    <button onClick={() => { setMeridianState(false); }}
                                         className={`p-2 w-25 
                                             ${meridianState ? "bg-white text-black  border-2 border-black" 
                                                 : "bg-black border-2 shadow-xl shadow-black border-white"} rounded text-xl `}

@@ -51,12 +51,8 @@ export async function PUT(request: Request) {
         await savedalarms.query("UPDATE ALARM SET SELECTED=? wHERE ID=?", [selected, id]);
     }
 
-    else if (meridian !== undefined) {
-        await savedalarms.query("UPDATE ALARM SET MERIDIAN=? WHERE ID=?", [meridian, id])
-    }
-
-    else if (selected == undefined && days == undefined) {
-        await savedalarms.query("UPDATE ALARM SET HOURS=?, MINUTES=? WHERE ID =?", [hours, minutes, id])
+    else if (hours !== undefined && minutes !== undefined && meridian !== undefined) {
+        await savedalarms.query("UPDATE ALARM SET HOURS=?, MINUTES=? , meridian=? WHERE ID =?", [hours, minutes,meridian, id])
     }
 
 
